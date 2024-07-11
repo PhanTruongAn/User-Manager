@@ -1,0 +1,116 @@
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(
+    135deg,
+    rgba(34, 193, 195, 1) 0%,
+    rgba(253, 187, 45, 1) 100%
+  );
+}
+
+.login-container {
+  width: 400px;
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.login-content {
+  padding: 10px;
+
+  .text-login {
+    text-align: center;
+    font-weight: 600;
+    font-size: 24px;
+    // padding-top: 12px;
+  }
+
+  .login-input {
+    padding: 8px;
+    .custom-password {
+      position: relative;
+      .eye-icon {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .btn-login {
+    width: 100%;
+    margin: 10px 0;
+    height: 30px;
+    border-radius: 15px;
+    border: none;
+    background: linear-gradient(
+      135deg,
+      rgba(34, 193, 195, 1) 0%,
+      rgba(253, 187, 45, 1) 100%
+    );
+    font-weight: 600;
+    font-size: 18px;
+    color: white;
+    align-self: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  .btn-login:hover {
+    background: linear-gradient(
+      135deg,
+      rgba(253, 187, 45, 1) 0%,
+      rgba(34, 193, 195, 1) 100%
+    );
+    transform: scale(1.03); /* Phóng to nút khi hover */
+  }
+  .forgot-password {
+    font-size: 12px;
+    border: none;
+    outline: none;
+    background-color: white;
+    &:hover {
+      font-weight: 600;
+    }
+  }
+
+  .social-icon {
+    margin-top: 10px;
+    button {
+      border: none;
+      background-color: white;
+      border-radius: 100%;
+      width: 37px;
+      height: 37px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .twitter {
+      background-color: #0dcaf0;
+      transition: background-color 0.3s ease;
+      &:hover {
+        background-color: #00bac7;
+        transform: scale(1.05); /* Màu khi hover */
+      }
+    }
+    .facebook {
+      transition: background-color 0.3s ease;
+      background-color: #0096c7;
+      &:hover {
+        background-color: #0060c7;
+        transform: scale(1.05);
+      }
+    }
+
+    .google {
+      transition: background-color 0.3s ease;
+      background-color: rgb(249, 67, 67);
+      &:hover {
+        background-color: red;
+        transform: scale(1.05);
+      }
+    }
+  }
+}
