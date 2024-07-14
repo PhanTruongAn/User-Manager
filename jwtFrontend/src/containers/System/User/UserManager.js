@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "./UserManager.scss";
 import { Table } from "antd";
 import userApi from "../../../api/userApi";
+import { toast } from "react-toastify";
 const UserManager = (props) => {
   const [dataSource, setDataSource] = useState([]);
   useEffect(() => {
@@ -9,6 +10,8 @@ const UserManager = (props) => {
       const res = await userApi.getUsers();
       if (res && res.EC === 0) {
         setDataSource(res.DT);
+      } else {
+        toast.error(res.EM);
       }
     };
 
