@@ -10,19 +10,36 @@ const hashPassword = (userPassword) => {
   let hashPassword = bcrypt.hashSync(userPassword, salt);
   return hashPassword;
 };
-const createNewUser = async (email, password, username) => {
-  let hashPass = hashPassword(password);
-
+const registerUser = async (dataUser) => {
   try {
-    await db.User.create({
-      email: email,
+    const hashPass = hashPassword(dataUser.password);
+    const newUser = await db.User.create({
+      email: dataUser.email,
       password: hashPass,
-      username: username,
+      username: dataUser.username,
+      phone: dataUser.phone,
     });
+    if (newUser) {
+      return {
+        EC: 0,
+      };
+    } else {
+      return {
+        EM: "Register fail!",
+        EC: 1,
+        DT: null,
+      };
+    }
   } catch (error) {
     console.log(error);
+    return {
+      EM: "Error from server!",
+      EC: 1,
+      DT: null,
+    };
   }
 };
+
 const getUserList = async () => {
   const users = await db.User.findAll({
     attributes: ["id", "email", "username", "groupId"],
@@ -99,7 +116,7 @@ const loginUser = async (userData) => {
   };
 };
 module.exports = {
-  createNewUser,
+  registerUser,
   getUserList,
   deleteUser,
   editUser,

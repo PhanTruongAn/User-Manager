@@ -1,6 +1,6 @@
 // import logo from "./logo.svg";
 // import "./App.css";
-import Login from "./containers/Auth/Login";
+import Login from "./components/Login/Login";
 import { ToastContainer } from "react-toastify";
 import { store } from "./redux/store";
 import { Provider } from "react-redux";
@@ -11,6 +11,7 @@ import Home from "./routes/Home";
 import ErrorPage from "./routes/ErrorPage";
 import System from "./routes/System";
 import AdminManager from "./containers/System/User/AdminManager";
+import Register from "./components/Register/Register";
 import { path } from "./utils/constant";
 function App() {
   const router = createBrowserRouter([
@@ -22,6 +23,10 @@ function App() {
       path: path.HOME,
       element: <Home />,
       errorElement: <ErrorPage />,
+    },
+    {
+      path: path.REGISTER,
+      element: <Register />,
     },
     {
       path: path.SYSTEM,

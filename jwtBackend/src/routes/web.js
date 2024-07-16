@@ -8,10 +8,10 @@ const router = express.Router();
  */
 
 const initWebRoutes = (app) => {
-  router.all("*", jwtMiddle);
+  // router.all("*", jwtMiddle);
   router.get("/", homeController.handlerHelloWorld);
   router.get("/user/get-all", homeController.handlerUserPage);
-  router.post("/user/create-user", homeController.handlerCreateNewUser);
+  router.post("/user/register", homeController.handlerRegister);
   router.post("/user/delete-user/:id", homeController.handlerDeleteUser);
   router.get("/user/edit-user/:id", homeController.handlerEditUser);
   router.post("/user/edit-user", homeController.handlerUpdateUser);

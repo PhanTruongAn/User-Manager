@@ -47,9 +47,12 @@ function Login() {
       console.log(error);
     }
   };
+  let handleRegister = () => {
+    navigate("/register");
+  };
   return (
-    <div className="login-wrapper">
-      <div className="login-container">
+    <div className="container-fluid login-wrapper d-flex justify-content-center py-3 align-items-sm-center">
+      <div className="login-container bg-white ">
         <div className="login-content row">
           <div className="col-12 text-login">Login</div>
           <div className="col-12 form-group login-input">
@@ -82,21 +85,27 @@ function Login() {
             </div>
           </div>
           <div className="col-12" style={{ fontSize: 13, color: "red" }}>
-            {errorMessenger}
+            <strong>{errorMessenger}</strong>
           </div>
+
           <div className="col-12">
-            <button type="button" className="btn-login" onClick={handlerLogin}>
+            <button
+              type="button"
+              className="btn-login text-light"
+              onClick={handlerLogin}
+            >
               Login
             </button>
           </div>
           <div className="col-12">
             <button className="forgot-password">Forgot your password?</button>
           </div>
+          <hr />
           <div className="col-12 text-center">
-            <span>Or Login with:</span>
+            <span>Or Register:</span>
           </div>
           <div className="col-12 d-flex justify-content-around social-icon">
-            <button type="button" className="google">
+            {/* <button type="button" className="google">
               <FontAwesomeIcon
                 icon="fa-brands fa-google-plus-g"
                 fontSize={23}
@@ -118,26 +127,16 @@ function Login() {
                   color: "white",
                 }}
               />
+            </button> */}
+            <button
+              type="button"
+              className="register text-light"
+              onClick={handleRegister}
+            >
+              Create New Account
             </button>
           </div>
         </div>
-      </div>
-
-      <div
-        className="login-button"
-        // onClick={toggleLoginForm}
-        style={{
-          position: "fixed",
-          top: "20px",
-          right: "20px",
-          backgroundColor: "#0dcaf0",
-          color: "white",
-          padding: "10px 20px",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
-      >
-        Login
       </div>
     </div>
   );

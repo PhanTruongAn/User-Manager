@@ -9,13 +9,9 @@ const handlerUserPage = async (req, res) => {
   return res.status(200).json(data);
 };
 
-const handlerCreateNewUser = (req, res) => {
-  let email = req.body.email;
-  let username = req.body.username;
-  let password = req.body.password;
-
-  userService.createNewUser(email, password, username);
-  return res.redirect("/user");
+const handlerRegister = async (req, res) => {
+  let data = await userService.registerUser(req.body);
+  return res.status(200).json(data);
 };
 const handlerDeleteUser = async (req, res) => {
   await userService.deleteUser(req.params.id);
@@ -46,7 +42,7 @@ const handlerLoginUser = async (req, res) => {
 module.exports = {
   handlerHelloWorld,
   handlerUserPage,
-  handlerCreateNewUser,
+  handlerRegister,
   handlerDeleteUser,
   handlerEditUser,
   handlerUpdateUser,
