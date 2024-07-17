@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import db from "../models/index";
 import { Op, where } from "sequelize";
 import _ from "lodash";
+import userValidate from "../validates/userValidate";
 const jwt = require("jsonwebtoken");
 const jwt_secret = process.env.JWT_SECRET;
 const jwt_expire = process.env.JWT_EXPIRE;
@@ -12,29 +13,34 @@ const hashPassword = (userPassword) => {
 };
 const registerUser = async (dataUser) => {
   try {
-    const hashPass = hashPassword(dataUser.password);
-    const newUser = await db.User.create({
-      email: dataUser.email,
-      password: hashPass,
-      username: dataUser.username,
-      phone: dataUser.phone,
-    });
-    if (newUser) {
-      return {
-        EC: 0,
-      };
+    const validData = await userValidate.checkRegister(dataUser);
+    if (validData.EC === 1) {
+      return validData;
     } else {
-      return {
-        EM: "Register fail!",
-        EC: 1,
-        DT: null,
-      };
+      const hashPass = hashPassword(dataUser.password);
+      const newUser = await db.User.create({
+        email: dataUser.email,
+        password: hashPass,
+        username: dataUser.username,
+        phone: dataUser.phone,
+      });
+      if (newUser) {
+        return {
+          EC: 0,
+        };
+      } else {
+        return {
+          EM: "Register fail!",
+          EC: 2,
+          DT: null,
+        };
+      }
     }
   } catch (error) {
     console.log(error);
     return {
       EM: "Error from server!",
-      EC: 1,
+      EC: 2,
       DT: null,
     };
   }
@@ -81,7 +87,7 @@ const loginUser = async (userData) => {
   }
   let userFounded = await db.User.findOne({
     where: {
-      [Op.or]: [{ email: userName }, { username: userName }],
+      [Op.or]: [{ email: userName }, { phone: userName }],
     },
   });
   if (userFounded) {
@@ -93,13 +99,14 @@ const loginUser = async (userData) => {
       const payload = {
         email: userFounded.email,
         username: userFounded.username,
+        phone: userFounded.phone,
       };
       const access_token = jwt.sign(payload, jwt_secret, {
         expiresIn: jwt_expire,
       });
       return {
         EC: 0,
-        DT: _.pick(userFounded, ["email", "username", "groupId"]),
+        DT: _.pick(userFounded, ["email", "username", "phone", "groupId"]),
         access_token: access_token,
       };
     } else {
@@ -110,7 +117,7 @@ const loginUser = async (userData) => {
     }
   }
   return {
-    EM: "Your email or username is not exist!",
+    EM: "Your phone or email is not exist!",
     EC: 1,
     DT: null,
   };

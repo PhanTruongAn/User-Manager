@@ -56,11 +56,11 @@ function Login() {
         <div className="login-content row">
           <div className="col-12 text-login">Login</div>
           <div className="col-12 form-group login-input">
-            <label>Username/Email</label>
+            <label>Phone/Email</label>
             <input
               type="text"
               className="form-control"
-              placeholder="Enter your Username or Email"
+              placeholder="Enter your Phone or Email"
               value={username}
               onChange={(e) => handlerUseNameChange(e)}
             />

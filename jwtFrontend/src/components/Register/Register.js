@@ -42,8 +42,10 @@ const Register = () => {
         setPassword("");
         setConfirmPassword("");
         setErrorMessenger("");
-      } else {
+      } else if (res.EC === 2) {
         toast.error(res.EM);
+      } else {
+        setErrorMessenger(res.EM);
       }
     } else {
       setErrorMessenger("Re-enter password isn't correct!");
@@ -134,7 +136,10 @@ const Register = () => {
               />
             </div>
           </div>
-          <div className="col-12" style={{ fontSize: 13, color: "red" }}>
+          <div
+            className="col-12"
+            style={{ fontSize: 13, color: "red", marginLeft: 8 }}
+          >
             <strong>{errorMessenger}</strong>
           </div>
 
