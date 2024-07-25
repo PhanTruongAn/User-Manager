@@ -4,4 +4,5 @@ export const path = {
   LOG_OUT: "/logout",
   SYSTEM: "/system",
   REGISTER: "/register",
+  ADMIN_HOME: "/admin-home",
 };

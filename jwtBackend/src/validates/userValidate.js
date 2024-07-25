@@ -70,7 +70,45 @@ const userValidate = {
       };
     }
   },
+  checkRole: (role) => {
+    if (!role) {
+      return {
+        EM: "Please select role !",
+        EC: 1,
+      };
+    } else {
+      return {
+        EC: 0,
+      };
+    }
+  },
   checkRegister: async (user) => {
+    const userNameCheck = userValidate.checkUserName(user.username);
+    if (userNameCheck.EC === 1) {
+      return userNameCheck;
+    }
+
+    const emailCheck = await userValidate.checkEmail(user.email);
+    if (emailCheck.EC === 1) {
+      return emailCheck;
+    }
+
+    const phoneCheck = userValidate.checkPhone(user.phone);
+    if (phoneCheck.EC === 1) {
+      return phoneCheck;
+    }
+
+    const passwordCheck = userValidate.checkPassword(
+      user.password ? user.password : "1"
+    );
+    if (passwordCheck.EC === 1) {
+      return passwordCheck;
+    }
+    return {
+      EC: 0,
+    };
+  },
+  checkCreateUser: async (user) => {
     const userNameCheck = userValidate.checkUserName(user.username);
     if (userNameCheck.EC === 1) {
       return userNameCheck;
@@ -89,6 +127,10 @@ const userValidate = {
     const passwordCheck = userValidate.checkPassword(user.password);
     if (passwordCheck.EC === 1) {
       return passwordCheck;
+    }
+    const roleCheck = userValidate.checkRole(user.role);
+    if (roleCheck.EC === 1) {
+      return roleCheck;
     }
     return {
       EC: 0,

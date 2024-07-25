@@ -1,16 +1,26 @@
 import axiosClient from "./axiosClient";
+const baseUrl = "/user/";
 const userApi = {
   userLogin: (userData) => {
-    let url = "/user/login";
-    return axiosClient.post(url, userData);
+    return axiosClient.post(baseUrl + "login", userData);
   },
   userRegister: (userData) => {
-    let url = "/user/register";
-    return axiosClient.post(url, userData);
+    return axiosClient.post(baseUrl + "register", userData);
   },
-  getUsers: () => {
-    let url = "/user/get-all";
-    return axiosClient.get(url);
+  getUsers: (page, limit) => {
+    return axiosClient.get(`${baseUrl}get-all?page=${page}&limit=${limit}`);
+  },
+  fetchToken: (data) => {
+    return axiosClient.post(baseUrl + "fetch-token", data);
+  },
+  updateUser: (data) => {
+    return axiosClient.put(baseUrl + "update", data);
+  },
+  deleteUser: (id) => {
+    return axiosClient.delete(`${baseUrl}delete/${id}`);
+  },
+  createUser: (data) => {
+    return axiosClient.post(`${baseUrl}create`, data);
   },
 };
 export default userApi;

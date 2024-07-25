@@ -5,7 +5,7 @@ import userApi from "../../api/userApi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
-import { loginSuccess } from "../../redux/userSlice";
+import { fetchUserToken } from "../../redux/userSlice";
 import { useNavigate } from "react-router-dom";
 function Login() {
   const navigate = useNavigate();
@@ -32,13 +32,16 @@ function Login() {
       };
       let res = await userApi.userLogin(userData);
       if (res && res.EC === 0) {
-        dispatch(loginSuccess(res.DT));
-        localStorage.setItem("access_token", res.access_token);
+        const data = {
+          token: res.DT,
+        };
+        dispatch(fetchUserToken(data));
+        localStorage.setItem("access_token", res.DT);
         toast.success("Login Success!", { autoClose: 1000 });
         setUsername("");
         setPassword("");
         setErrorMessenger("");
-        navigate("/");
+        navigate("/admin-home");
       } else {
         setErrorMessenger(res.EM);
       }
@@ -74,6 +77,11 @@ function Login() {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => handlerPasswordChange(e)}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    handlerLogin();
+                  }
+                }}
               />
               <FontAwesomeIcon
                 icon={

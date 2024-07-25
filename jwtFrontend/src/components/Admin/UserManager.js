@@ -1,0 +1,180 @@
+import { useState, useEffect } from "react";
+import { Table, Tag, Space, Button } from "antd";
+import userApi from "../../api/userApi";
+import { toast } from "react-toastify";
+import ModalUpdateUser from "./ModalUpdateUser";
+import ModalCreateUser from "./ModalCreateUser";
+import { Pagination } from "antd";
+const UserManager = (props) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  /* eslint-disable */
+  const [limitUser, setLimitUser] = useState(5);
+  const [totalRows, setTotalRows] = useState();
+  const [dataSource, setDataSource] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
+  const [userSelect, setUserSelect] = useState({});
+  //Fetch data users
+  /* eslint-disable */
+  useEffect(() => {
+    fetchApi();
+  }, [currentPage]);
+  const fetchApi = async () => {
+    const res = await userApi.getUsers(+currentPage, +limitUser);
+    if (res && res.EC === 0) {
+      setDataSource(res.DT.users);
+      setTotalRows(res.DT.totalRows);
+      setLoadingData(false);
+    } else {
+      toast.error(res.EM);
+    }
+  };
+  const showDrawer = (record) => {
+    setUserSelect(record);
+    setOpen(true);
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000); // Cân nhắc việc xử lý loading theo cách khác
+  };
+
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  const onDeleteUser = async (record) => {
+    // const user = {
+    //   id: record.id,
+    // };
+    const res = await userApi.deleteUser(record.id);
+    if (res && res.EC === 0) {
+      toast.success("Delete user success!", { autoClose: 500 });
+      fetchApi();
+    } else {
+      toast.error(res.message, { autoClose: 1000 });
+    }
+  };
+  const openCreateModal = () => {
+    setOpenModal(true);
+  };
+  const onCloseCreateModal = () => {
+    setOpenModal(false);
+  };
+  const onChange = (pageNumber) => {
+    setLoadingData(true);
+    setCurrentPage(pageNumber);
+  };
+  const onReloadData = () => {
+    setCurrentPage(1);
+    setDataSource([]);
+    setLoadingData(true);
+    fetchApi();
+  };
+  const columns = [
+    {
+      title: "Id",
+      dataIndex: "id",
+    },
+    {
+      title: "Username",
+      dataIndex: "username",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+    },
+    { title: "Phone", dataIndex: "phone" },
+    { title: "Sex", dataIndex: "sex" },
+    { title: "Address", dataIndex: "address" },
+    {
+      title: "Role",
+      dataIndex: "Group",
+      render: (text, record) => {
+        // Kiểm tra xem Group có tồn tại không trước khi truy cập id
+        const role = record.Group ? record.Group.id : null;
+
+        if (role === 3) {
+          return <Tag color="magenta">ADMIN</Tag>;
+        } else if (role === 1) {
+          return <Tag color="processing">DEV</Tag>;
+        } else if (role !== null) {
+          return <Tag color="success">USER</Tag>;
+        } else {
+          return <Tag color="default">No Role</Tag>; // Hoặc hiển thị một thông báo mặc định
+        }
+      },
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button type="link" onClick={(e) => showDrawer(record)}>
+            Update
+          </Button>
+          {record.Group.name === "ADMIN" ? (
+            <Button type="link" disabled>
+              Delete
+            </Button>
+          ) : (
+            <Button type="link" danger onClick={(e) => onDeleteUser(record)}>
+              Delete
+            </Button>
+          )}
+        </Space>
+      ),
+    },
+  ];
+  return (
+    <>
+      <Space
+        style={{
+          position: "absolute",
+          right: 30,
+          marginTop: 10,
+        }}
+      >
+        <Button type="primary" onClick={onReloadData}>
+          Reload
+        </Button>
+        <Button onClick={openCreateModal}>Create new user</Button>
+      </Space>
+      <Table
+        style={{ padding: 15, marginTop: 40 }}
+        dataSource={dataSource}
+        bordered
+        columns={columns}
+        rowKey={"id"}
+        scroll={{ x: "max-content" }}
+        pagination={false}
+        loading={loadingData}
+      />
+      {dataSource.length > 0 ? (
+        <Pagination
+          style={{ position: "absolute", right: 100, marginTop: 30 }}
+          total={totalRows}
+          defaultCurrent={1}
+          pageSize={limitUser}
+          onChange={onChange}
+        />
+      ) : (
+        <></>
+      )}
+      <ModalUpdateUser
+        loading={loading}
+        open={open}
+        onCancel={onClose}
+        userSelect={userSelect}
+        fetchApi={fetchApi}
+      />
+      <ModalCreateUser
+        fetchApi={fetchApi}
+        open={openModal}
+        onCancel={onCloseCreateModal}
+      />
+    </>
+  );
+};
+export default UserManager;
