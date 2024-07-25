@@ -1,5 +1,5 @@
 require("dotenv").config();
-const jwt = require("jsonwebtoken");
+import jwtAction from "./jwtAction";
 
 const jwtMiddle = (req, res, next) => {
   const white_lists = ["/", "/register", "/login"];
@@ -9,14 +9,10 @@ const jwtMiddle = (req, res, next) => {
     setTimeout(() => {
       if (req?.headers?.authorization?.split(" ")?.[1]) {
         const token = req.headers.authorization.split(" ")[1];
-        // console.log(">>>>>Check Token: ", token);
-
-        // Verify token
-        try {
-          const decoded = jwt.verify(token, process.env.JWT_SECRET);
-          // console.log("Decoded data: ", decoded);
+        const isVerify = jwtAction.verifyToken(token);
+        if (isVerify) {
           next();
-        } catch (error) {
+        } else {
           return res.status(401).json({
             EC: 1,
             EM: "Token invalid or expired!",

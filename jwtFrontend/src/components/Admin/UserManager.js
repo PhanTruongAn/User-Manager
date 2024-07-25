@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import ModalUpdateUser from "./ModalUpdateUser";
 import ModalCreateUser from "./ModalCreateUser";
 import { Pagination } from "antd";
+import { ReloadOutlined, PlusOutlined } from "@ant-design/icons";
 const UserManager = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   /* eslint-disable */
@@ -16,8 +17,8 @@ const UserManager = (props) => {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [userSelect, setUserSelect] = useState({});
+  const [spinIcon, setSpinIcon] = useState(false);
   //Fetch data users
-  /* eslint-disable */
   useEffect(() => {
     fetchApi();
   }, [currentPage]);
@@ -27,6 +28,7 @@ const UserManager = (props) => {
       setDataSource(res.DT.users);
       setTotalRows(res.DT.totalRows);
       setLoadingData(false);
+      setSpinIcon(false);
     } else {
       toast.error(res.EM);
     }
@@ -66,12 +68,14 @@ const UserManager = (props) => {
     setLoadingData(true);
     setCurrentPage(pageNumber);
   };
-  const onReloadData = () => {
+  const onReloadData = async () => {
     setCurrentPage(1);
     setDataSource([]);
     setLoadingData(true);
+    setSpinIcon(true);
     fetchApi();
   };
+
   const columns = [
     {
       title: "Id",
@@ -96,13 +100,13 @@ const UserManager = (props) => {
         const role = record.Group ? record.Group.id : null;
 
         if (role === 3) {
-          return <Tag color="magenta">ADMIN</Tag>;
+          return <Tag color="red">ADMIN</Tag>;
         } else if (role === 1) {
           return <Tag color="processing">DEV</Tag>;
-        } else if (role !== null) {
+        } else if (role === 2) {
           return <Tag color="success">USER</Tag>;
         } else {
-          return <Tag color="default">No Role</Tag>; // Hoặc hiển thị một thông báo mặc định
+          return <Tag color="default">GUEST</Tag>; // Hoặc hiển thị một thông báo mặc định
         }
       },
     },
@@ -127,6 +131,15 @@ const UserManager = (props) => {
       ),
     },
   ];
+  const itemRender = (_, type, originalElement) => {
+    if (type === "prev") {
+      return <Button type="link">Previous</Button>;
+    }
+    if (type === "next") {
+      return <Button type="link">Next</Button>;
+    }
+    return originalElement;
+  };
   return (
     <>
       <Space
@@ -137,9 +150,12 @@ const UserManager = (props) => {
         }}
       >
         <Button type="primary" onClick={onReloadData}>
-          Reload
+          <ReloadOutlined style={{ fontSize: 16 }} spin={spinIcon} /> Reload
         </Button>
-        <Button onClick={openCreateModal}>Create new user</Button>
+        <Button onClick={openCreateModal} style={{ borderWidth: 1.5 }}>
+          <PlusOutlined style={{ fontSize: 16 }} />
+          Create new user
+        </Button>
       </Space>
       <Table
         style={{ padding: 15, marginTop: 40 }}
@@ -158,6 +174,7 @@ const UserManager = (props) => {
           defaultCurrent={1}
           pageSize={limitUser}
           onChange={onChange}
+          itemRender={itemRender}
         />
       ) : (
         <></>

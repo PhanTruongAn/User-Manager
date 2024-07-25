@@ -2,11 +2,9 @@ import bcrypt from "bcryptjs";
 import db from "../models/index";
 import { Op, where } from "sequelize";
 import _ from "lodash";
-
 import userValidate from "../validates/userValidate";
-const jwt = require("jsonwebtoken");
-const jwt_secret = process.env.JWT_SECRET;
-const jwt_expire = process.env.JWT_EXPIRE;
+import jwtAction from "../middleware/jwtAction";
+import authenticationService from "./authenticationService";
 let salt = bcrypt.genSaltSync(10);
 
 //models db
@@ -31,7 +29,7 @@ const registerUser = async (dataUser) => {
         password: hashPass,
         username: dataUser.username,
         phone: dataUser.phone,
-        groupId: dataUser.groupId ? dataUser.groupId : 2,
+        groupId: dataUser.groupId ? dataUser.groupId : 4,
       });
       if (newUser) {
         return {
@@ -97,7 +95,6 @@ const getUserList = async () => {
       // attributes: ["name", "description"], // Specify the attributes you want to retrieve
     },
   });
-
   return {
     EC: 0,
     DT: users,
@@ -111,6 +108,7 @@ const getPaginationUsers = async (page, limit) => {
       attributes: ["id", "username", "email", "phone", "sex", "address"],
       include: {
         model: Group,
+        attributes: ["id", "name", "description"],
       },
       offset: offset,
       limit: limit,
@@ -209,9 +207,8 @@ const loginUser = async (userData) => {
         username: userFounded.username,
         phone: userFounded.phone,
       };
-      const access_token = jwt.sign(payload, jwt_secret, {
-        expiresIn: jwt_expire,
-      });
+      const access_token = jwtAction.createToken(payload);
+
       return {
         EC: 0,
         DT: access_token,
@@ -231,12 +228,18 @@ const loginUser = async (userData) => {
 };
 const getDataFromToken = async (data) => {
   const token = data.token;
-  const decodeToken = jwt.decode(token);
-  const res = await User.findOne({ where: { email: decodeToken.email } });
-  if (res) {
+  const decodeToken = jwtAction.decodeToken(token);
+  const user = await User.findOne({ where: { email: decodeToken.email } });
+  const roles = await authenticationService.getRoleWithGroupId(user);
+
+  if (user) {
+    const userDTO = {
+      ..._.pick(user, ["email", "username", "phone", "groupId"]),
+      groupWithRoles: roles,
+    };
     return {
       EC: 0,
-      DT: _.pick(res, ["email", "username", "phone", "groupId"]),
+      DT: userDTO,
     };
   } else {
     return {

@@ -12,6 +12,7 @@ const handlerGetAllGroup = async (req, res) => {
     });
   }
 };
+
 module.exports = {
   handlerGetAllGroup,
 };

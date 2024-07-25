@@ -123,6 +123,11 @@ const Register = () => {
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
                 }}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    handleRegister();
+                  }
+                }}
                 value={confirmPassword}
               />
               <FontAwesomeIcon
