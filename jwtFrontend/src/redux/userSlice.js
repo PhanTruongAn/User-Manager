@@ -10,7 +10,6 @@ const fetchUserToken = createAsyncThunk(
     try {
       const res = await userApi.fetchToken(token);
       if (res && res.EC === 0) {
-        console.log("Check data:", res);
         return res.DT;
       } else {
         throw new Error(res.EM);

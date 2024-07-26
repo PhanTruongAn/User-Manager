@@ -1,13 +1,13 @@
 import axios from "axios";
-// import queryString from "query-string";
 const axiosClient = axios.create({
   baseURL: "http://localhost:8080/",
   headers: {
     "content-type": "application/json",
   },
   // paramsSerializer: (params) => queryString.stringify(params),
+  withCredentials: true,
 });
-axiosClient.defaults.withCredentials = true;
+// axiosClient.defaults.withCredentials = true;
 
 axiosClient.interceptors.request.use(
   function (config) {
@@ -32,9 +32,8 @@ axiosClient.interceptors.response.use(
   },
   function (error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
-    // Do something with respons error
+    // Do something with response error
     if (error?.response?.data) return error?.response?.data;
-    return Promise.reject(error);
   }
 );
 export default axiosClient;

@@ -34,8 +34,10 @@ const ModalUpdateUser = React.memo((props) => {
       toast.success(res.message, { autoClose: 1000 });
       props.fetchApi();
       props.onCancel();
+    } else if (res.EC === -1) {
+      toast.error(res.EM, { autoClose: 1000 });
     } else {
-      toast.warning(res.message);
+      toast.error(res.message);
     }
   };
   return (
@@ -135,7 +137,7 @@ const ModalUpdateUser = React.memo((props) => {
                   },
                 ]}
               >
-                <Select placeholder="Please select role">
+                <Select placeholder="Please select role" defaultValue>
                   {listGroup &&
                     listGroup.length > 0 &&
                     listGroup.map((item, index) => {

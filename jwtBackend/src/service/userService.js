@@ -4,7 +4,7 @@ import { Op, where } from "sequelize";
 import _ from "lodash";
 import userValidate from "../validates/userValidate";
 import jwtAction from "../middleware/jwtAction";
-import authenticationService from "./authenticationService";
+import groupService from "./groupService";
 let salt = bcrypt.genSaltSync(10);
 
 //models db
@@ -95,9 +95,16 @@ const getUserList = async () => {
       // attributes: ["name", "description"], // Specify the attributes you want to retrieve
     },
   });
+  if (users && users.length > 0) {
+    return {
+      EC: 0,
+      DT: users,
+    };
+  }
   return {
-    EC: 0,
-    DT: users,
+    EC: 1,
+    DT: null,
+    EM: "Get list user fail!",
   };
 };
 
@@ -133,19 +140,18 @@ const getPaginationUsers = async (page, limit) => {
   }
 };
 
-const deleteUser = async (userId) => {
+const deleteUser = async (data) => {
   const res = await User.destroy({
-    where: { id: userId },
+    where: { id: data.id },
   });
   if (res) {
     return {
       EC: 0,
-      message: "Delete user success!",
     };
   } else {
     return {
       EC: 1,
-      message: "Delete user fail!",
+      EM: "Delete user fail!",
     };
   }
 };
@@ -202,10 +208,12 @@ const loginUser = async (userData) => {
       userFounded.password
     );
     if (comparePassword) {
+      const groupWithRoles = await groupService.getRoleWithGroupId(userFounded);
       const payload = {
         email: userFounded.email,
         username: userFounded.username,
         phone: userFounded.phone,
+        groupWithRoles,
       };
       const access_token = jwtAction.createToken(payload);
 
@@ -228,23 +236,19 @@ const loginUser = async (userData) => {
 };
 const getDataFromToken = async (data) => {
   const token = data.token;
-  const decodeToken = jwtAction.decodeToken(token);
-  const user = await User.findOne({ where: { email: decodeToken.email } });
-  const roles = await authenticationService.getRoleWithGroupId(user);
-
+  const dataFromToken = jwtAction.decodeToken(token);
+  const user = await User.findOne({ where: { email: dataFromToken.email } });
   if (user) {
-    const userDTO = {
-      ..._.pick(user, ["email", "username", "phone", "groupId"]),
-      groupWithRoles: roles,
-    };
     return {
       EC: 0,
-      DT: userDTO,
+      DT: {
+        ..._.pick(dataFromToken, ["email", "username", "phone", "group"]),
+      },
     };
   } else {
     return {
       EC: 1,
-      EM: "Token invalid or expired!",
+      EM: "Can't get data user from token!",
     };
   }
 };

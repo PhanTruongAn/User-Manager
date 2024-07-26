@@ -23,10 +23,7 @@ const AppRoute = () => {
             element={<PrivateRoute component={<UserManager />} />}
           />
         </Route>
-        <Route
-          path={path.HOME}
-          element={<PrivateRoute component={<UserHome />} />}
-        />
+        <Route path={path.HOME} element={<UserHome />} />
       </Routes>
     </>
   );

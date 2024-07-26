@@ -1,10 +1,11 @@
+require("dotenv").config();
 import express from "express";
 import configViewEngine from "./config/viewEngine";
 import initWebRoutes from "./routes/web";
 import bodyParser from "body-parser";
-require("dotenv").config();
 import cors from "cors";
 import connectionDB from "./config/connectDB";
+import cookieParser from "cookie-parser";
 const app = express();
 //config view engine
 configViewEngine(app);
@@ -26,6 +27,8 @@ app.use(
 );
 //Test connection database
 connectionDB();
+//Config cookie parser
+app.use(cookieParser());
 //init web routes
 initWebRoutes(app);
 

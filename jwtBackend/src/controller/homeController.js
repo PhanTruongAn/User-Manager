@@ -1,5 +1,5 @@
 import userService from "../service/userService";
-
+import _ from "lodash";
 const handlerHelloWorld = (req, res) => {
   return res.render("home.ejs");
 };
@@ -22,19 +22,11 @@ const handlerRegister = async (req, res) => {
 };
 const handlerDeleteUser = async (req, res) => {
   try {
-    const { id } = req.params;
-    const data = await userService.deleteUser(id);
+    const data = await userService.deleteUser(req.body);
     return res.status(200).json(data);
   } catch (error) {
     res.status(500).json(error);
   }
-};
-const handlerEditUser = async (req, res) => {
-  let id = req.params.id;
-  let user = await userService.editUser(id);
-  let userData = {};
-  userData = user;
-  return res.render("user-update.ejs", { userData });
 };
 const handlerUpdateUser = async (req, res) => {
   try {
@@ -47,6 +39,9 @@ const handlerUpdateUser = async (req, res) => {
 const handlerLoginUser = async (req, res) => {
   try {
     let data = await userService.loginUser(req.body);
+    if (data && data.DT) {
+      res.cookie("jwt", data.DT, { httpOnly: true, maxAge: 60 * 60 * 1000 });
+    }
     return res.status(200).json(data);
   } catch (error) {
     console.log(error);
@@ -54,8 +49,13 @@ const handlerLoginUser = async (req, res) => {
 };
 const handlerGetDataFromToken = async (req, res) => {
   try {
-    let data = await userService.getDataFromToken(req.body);
-    return res.status(200).json(data);
+    const user = {
+      ..._.pick(req.user, ["email", "username", "phone", "group"]),
+    };
+    return res.status(200).json({
+      EC: 0,
+      DT: user,
+    });
   } catch (error) {
     console.log(error);
   }
@@ -74,7 +74,6 @@ module.exports = {
   handlerRegister,
   handlerCreateUser,
   handlerDeleteUser,
-  handlerEditUser,
   handlerUpdateUser,
   handlerLoginUser,
   handlerGetDataFromToken,

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Table, Tag, Space, Button } from "antd";
+import { Table, Tag, Space, Button, message } from "antd";
 import userApi from "../../api/userApi";
 import { toast } from "react-toastify";
 import ModalUpdateUser from "./ModalUpdateUser";
@@ -9,8 +9,10 @@ import { ReloadOutlined, PlusOutlined } from "@ant-design/icons";
 const UserManager = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   /* eslint-disable */
+  const [messageApi, contextHolder] = message.useMessage();
   const [limitUser, setLimitUser] = useState(5);
   const [totalRows, setTotalRows] = useState();
+  const [totalPages, setTotalPages] = useState();
   const [dataSource, setDataSource] = useState([]);
   const [open, setOpen] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -24,14 +26,19 @@ const UserManager = (props) => {
   }, [currentPage]);
   const fetchApi = async () => {
     const res = await userApi.getUsers(+currentPage, +limitUser);
+    console.log("Pagination: ", res.DT);
     if (res && res.EC === 0) {
       setDataSource(res.DT.users);
       setTotalRows(res.DT.totalRows);
+      setTotalPages(res.DT.totalPages);
       setLoadingData(false);
       setSpinIcon(false);
-    } else {
-      toast.error(res.EM);
+    } else if (res.EC === -1) {
+      setDataSource([]);
+      setLoadingData(false);
+      setSpinIcon(false);
     }
+    toast.error(res.EM, { autoClose: 1000 });
   };
   const showDrawer = (record) => {
     setUserSelect(record);
@@ -47,15 +54,22 @@ const UserManager = (props) => {
   };
 
   const onDeleteUser = async (record) => {
-    // const user = {
-    //   id: record.id,
-    // };
-    const res = await userApi.deleteUser(record.id);
+    const user = {
+      id: record.id,
+    };
+    const res = await userApi.deleteUser(user);
+    console.log("Res:", res);
     if (res && res.EC === 0) {
       toast.success("Delete user success!", { autoClose: 500 });
+      setLoadingData(true);
       fetchApi();
+      if (dataSource.length === 1) {
+        setCurrentPage(currentPage - 1);
+      }
+    } else if (res.EC === -1) {
+      toast.error(res.EM, { autoClose: 1000 });
     } else {
-      toast.error(res.message, { autoClose: 1000 });
+      toast.error(res.EM, { autoClose: 1000 });
     }
   };
   const openCreateModal = () => {
@@ -63,6 +77,11 @@ const UserManager = (props) => {
   };
   const onCloseCreateModal = () => {
     setOpenModal(false);
+  };
+  const onSubmitCreateUser = () => {
+    setOpenModal(false);
+    setLoadingData(true);
+    setCurrentPage(totalPages);
   };
   const onChange = (pageNumber) => {
     setLoadingData(true);
@@ -171,9 +190,10 @@ const UserManager = (props) => {
         <Pagination
           style={{ position: "absolute", right: 100, marginTop: 30 }}
           total={totalRows}
-          defaultCurrent={1}
+          defaultCurrent={currentPage}
           pageSize={limitUser}
-          onChange={onChange}
+          onChange={(e) => onChange(e)}
+          current={currentPage}
           itemRender={itemRender}
         />
       ) : (
@@ -190,6 +210,7 @@ const UserManager = (props) => {
         fetchApi={fetchApi}
         open={openModal}
         onCancel={onCloseCreateModal}
+        onSubmit={onSubmitCreateUser}
       />
     </>
   );
