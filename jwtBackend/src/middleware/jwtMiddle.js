@@ -1,7 +1,7 @@
 require("dotenv").config();
 import jwtAction from "./jwtAction";
 //Non-secure path
-const white_list = ["/", "/register", "/login"];
+const white_list = ["/", "/register", "/login", "/log-out"];
 
 const extractToken = (req) => {
   if (req?.headers?.authorization?.split(" ")?.[1]) {
@@ -17,11 +17,17 @@ const jwtMiddle = (req, res, next) => {
     setTimeout(() => {
       const cookie = req.cookies;
       const tokenFromHeader = extractToken(req);
-      if ((cookie && cookie.jwt) || tokenFromHeader) {
+      if (!cookie.jwt || !tokenFromHeader) {
+        return res.status(401).json({
+          EC: 1,
+          EM: "Unauthorized!",
+        });
+      } else {
         const token = cookie.jwt ? cookie.jwt : tokenFromHeader;
         const isVerify = jwtAction.verifyToken(token);
         if (isVerify) {
           req.user = isVerify;
+          req.token = token;
           next();
         } else {
           return res.status(401).json({
@@ -29,11 +35,6 @@ const jwtMiddle = (req, res, next) => {
             EM: "Token invalid or expired!",
           });
         }
-      } else {
-        return res.status(401).json({
-          EC: 1,
-          EM: "Unauthorized!",
-        });
       }
     }, 2000);
   }
@@ -46,7 +47,9 @@ const checkUserPermission = (req, res, next) => {
     const roles = req.user.groupWithRoles.Roles;
     const currentUrl = req.path;
 
-    const canAccess = roles.some((item) => item.url === currentUrl);
+    const canAccess = roles.some(
+      (item) => item.url === currentUrl || currentUrl.includes(item.url)
+    );
     if (canAccess === true) {
       next();
     } else {

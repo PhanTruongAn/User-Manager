@@ -2,13 +2,19 @@ import {
   SettingOutlined,
   UserOutlined,
   UsergroupAddOutlined,
-  MenuOutlined,
+  // MenuOutlined,
+  LogoutOutlined,
+  HomeOutlined,
+  ProjectOutlined,
+  MessageOutlined,
+  ControlOutlined,
 } from "@ant-design/icons";
+
 const items = [
   {
     key: "/admin-home",
-    icon: <UserOutlined />,
-    label: "Admin",
+    icon: <HomeOutlined />,
+    label: "Home",
   },
   {
     key: "users",
@@ -16,19 +22,19 @@ const items = [
     label: "User",
   },
   {
-    key: "3",
-    icon: <MenuOutlined />,
+    key: "projects",
+    icon: <ProjectOutlined />,
     label: "Project",
   },
   {
-    key: "4",
-    icon: <MenuOutlined />,
+    key: "roles",
+    icon: <ControlOutlined />,
     label: "Role",
   },
   {
-    key: "5",
-    icon: <MenuOutlined />,
-    label: "Group",
+    key: "messages",
+    icon: <MessageOutlined />,
+    label: "Message",
   },
   {
     key: "sub",
@@ -36,13 +42,13 @@ const items = [
     label: "Setting",
     children: [
       {
-        key: "item1",
-        icon: <SettingOutlined />,
-        label: "Edit Information",
+        key: "edit-info",
+        icon: <UserOutlined />,
+        label: "Information",
       },
       {
-        key: "item2",
-        icon: <SettingOutlined />,
+        key: "log-out",
+        icon: <LogoutOutlined />,
         label: "Logout",
       },
     ],

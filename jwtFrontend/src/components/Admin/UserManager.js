@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
-import { Table, Tag, Space, Button, message } from "antd";
+import { Table, Tag, Space, message, Button, Popconfirm } from "antd";
 import userApi from "../../api/userApi";
 import { toast } from "react-toastify";
 import ModalUpdateUser from "./ModalUpdateUser";
 import ModalCreateUser from "./ModalCreateUser";
 import { Pagination } from "antd";
 import { ReloadOutlined, PlusOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import "@fontsource/roboto/500.css";
 const UserManager = (props) => {
-  const [currentPage, setCurrentPage] = useState(1);
   /* eslint-disable */
+  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
   const [messageApi, contextHolder] = message.useMessage();
   const [limitUser, setLimitUser] = useState(5);
   const [totalRows, setTotalRows] = useState();
@@ -25,8 +28,7 @@ const UserManager = (props) => {
     fetchApi();
   }, [currentPage]);
   const fetchApi = async () => {
-    const res = await userApi.getUsers(+currentPage, +limitUser);
-    console.log("Pagination: ", res.DT);
+    const res = await userApi.getUsers(currentPage, limitUser);
     if (res && res.EC === 0) {
       setDataSource(res.DT.users);
       setTotalRows(res.DT.totalRows);
@@ -37,6 +39,11 @@ const UserManager = (props) => {
       setDataSource([]);
       setLoadingData(false);
       setSpinIcon(false);
+    } else if (
+      res.EM === "Token invalid or expired!" ||
+      res.EM === "Unauthorized!"
+    ) {
+      navigate("/login");
     }
     toast.error(res.EM, { autoClose: 1000 });
   };
@@ -46,21 +53,56 @@ const UserManager = (props) => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-    }, 1000); // Cân nhắc việc xử lý loading theo cách khác
+    }, 1000);
   };
 
   const onClose = () => {
     setOpen(false);
   };
+  const onChange = (pageNumber) => {
+    setLoadingData(true);
+    setCurrentPage(pageNumber);
+  };
+  const openCreateModal = () => {
+    setOpenModal(true);
+  };
+  const onCloseCreateModal = () => {
+    setOpenModal(false);
+  };
+  const onSubmitCreateUser = () => {
+    setOpenModal(false);
+    setLoadingData(true);
+    if (currentPage === totalPages && dataSource.length === 5) {
+      setCurrentPage(currentPage + 1);
+    } else if (currentPage === totalPages && dataSource.length < 5) {
+      setCurrentPage(currentPage);
+    } else if (currentPage < totalPages && totalRows % 10 !== 0) {
+      setCurrentPage(totalPages);
+    } else {
+      setCurrentPage(totalPages + 1);
+    }
+  };
+  const onSubmitUpdateUser = () => {
+    setOpen(false);
+    setLoadingData(true);
+  };
 
-  const onDeleteUser = async (record) => {
+  const onReloadData = async () => {
+    setCurrentPage(1);
+    setDataSource([]);
+    setLoadingData(true);
+    setSpinIcon(true);
+    fetchApi();
+  };
+
+  const onPopConfirmDelete = async (record) => {
     const user = {
       id: record.id,
     };
     const res = await userApi.deleteUser(user);
-    console.log("Res:", res);
+    // console.log("Res:", res);
     if (res && res.EC === 0) {
-      toast.success("Delete user success!", { autoClose: 500 });
+      message.success("Delete user success!");
       setLoadingData(true);
       fetchApi();
       if (dataSource.length === 1) {
@@ -72,29 +114,7 @@ const UserManager = (props) => {
       toast.error(res.EM, { autoClose: 1000 });
     }
   };
-  const openCreateModal = () => {
-    setOpenModal(true);
-  };
-  const onCloseCreateModal = () => {
-    setOpenModal(false);
-  };
-  const onSubmitCreateUser = () => {
-    setOpenModal(false);
-    setLoadingData(true);
-    setCurrentPage(totalPages);
-  };
-  const onChange = (pageNumber) => {
-    setLoadingData(true);
-    setCurrentPage(pageNumber);
-  };
-  const onReloadData = async () => {
-    setCurrentPage(1);
-    setDataSource([]);
-    setLoadingData(true);
-    setSpinIcon(true);
-    fetchApi();
-  };
-
+  const onPopConfirmCancel = () => {};
   const columns = [
     {
       title: "Id",
@@ -142,9 +162,18 @@ const UserManager = (props) => {
               Delete
             </Button>
           ) : (
-            <Button type="link" danger onClick={(e) => onDeleteUser(record)}>
-              Delete
-            </Button>
+            <Popconfirm
+              title="Delete a user"
+              description="Are you sure to delete this user?"
+              onConfirm={(e) => onPopConfirmDelete(record)}
+              onCancel={onPopConfirmCancel}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="link" danger>
+                Delete
+              </Button>
+            </Popconfirm>
           )}
         </Space>
       ),
@@ -160,12 +189,12 @@ const UserManager = (props) => {
     return originalElement;
   };
   return (
-    <>
+    <div className="container-content">
       <Space
         style={{
           position: "absolute",
           right: 30,
-          marginTop: 10,
+          marginTop: -40,
         }}
       >
         <Button type="primary" onClick={onReloadData}>
@@ -177,7 +206,7 @@ const UserManager = (props) => {
         </Button>
       </Space>
       <Table
-        style={{ padding: 15, marginTop: 40 }}
+        style={{ padding: 15, marginTop: 50 }}
         dataSource={dataSource}
         bordered
         columns={columns}
@@ -195,6 +224,7 @@ const UserManager = (props) => {
           onChange={(e) => onChange(e)}
           current={currentPage}
           itemRender={itemRender}
+          showQuickJumper
         />
       ) : (
         <></>
@@ -203,6 +233,7 @@ const UserManager = (props) => {
         loading={loading}
         open={open}
         onCancel={onClose}
+        onSubmit={onSubmitUpdateUser}
         userSelect={userSelect}
         fetchApi={fetchApi}
       />
@@ -212,7 +243,7 @@ const UserManager = (props) => {
         onCancel={onCloseCreateModal}
         onSubmit={onSubmitCreateUser}
       />
-    </>
+    </div>
   );
 };
 export default UserManager;

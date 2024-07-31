@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Col, Form, Input, Modal, Row, Select } from "antd";
+import { Col, Form, Input, message, Modal, Row, Select } from "antd";
 import userApi from "../../api/userApi";
 import { toast } from "react-toastify";
 import _ from "lodash";
@@ -31,9 +31,9 @@ const ModalUpdateUser = React.memo((props) => {
     const cpususer = _.cloneDeep(form.getFieldValue());
     const res = await userApi.updateUser(cpususer);
     if (res && res.EC === 0) {
-      toast.success(res.message, { autoClose: 1000 });
+      message.success(res.message);
       props.fetchApi();
-      props.onCancel();
+      props.onSubmit();
     } else if (res.EC === -1) {
       toast.error(res.EM, { autoClose: 1000 });
     } else {

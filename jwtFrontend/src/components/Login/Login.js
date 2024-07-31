@@ -1,152 +1,129 @@
 import React, { useState } from "react";
 import "./Login.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import userApi from "../../api/userApi";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useDispatch } from "react-redux";
-import { fetchUserToken } from "../../redux/userSlice";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
+import TextField from "@mui/material/TextField";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Link from "@mui/material/Link";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Container from "@mui/material/Container";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import _ from "lodash";
 import { useNavigate } from "react-router-dom";
-function Login() {
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import userApi from "../../api/userApi";
+import { fetchUserToken } from "../../redux/userSlice";
+const defaultTheme = createTheme();
+
+const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [errorMessenger, setErrorMessenger] = useState("");
-  let handlerShowPassword = () => {
-    setShowPassword(!showPassword);
+  const data = {
+    userName: "",
+    password: "",
   };
-
-  let handlerUseNameChange = (e) => {
-    setUsername(e.target.value);
-  };
-  let handlerPasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
-  let handlerLogin = async () => {
+  const [user, setUser] = useState(data);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     try {
-      let userData = {
-        userName: username,
-        password: password,
-      };
-      let res = await userApi.userLogin(userData);
+      const res = await userApi.userLogin(user);
       if (res && res.EC === 0) {
-        const data = {
-          token: res.DT,
-        };
-        dispatch(fetchUserToken(data));
-        localStorage.setItem("access_token", res.DT);
+        dispatch(fetchUserToken());
+        localStorage.setItem("jwt", res.DT);
         toast.success("Login Success!", { autoClose: 1000 });
-        setUsername("");
-        setPassword("");
-        setErrorMessenger("");
         navigate("/admin-home");
       } else {
-        setErrorMessenger(res.EM);
+        toast.error(res.EM, { autoClose: 1000 });
       }
-    } catch (error) {
-      toast.error("Error from server!");
-      console.log(error);
-    }
+    } catch (error) {}
   };
-  let handleRegister = () => {
-    navigate("/register");
+
+  const onChangeText = (value, name) => {
+    const _user = _.cloneDeep(user);
+    _user[name] = value;
+    setUser(_user);
   };
   return (
-    <div className="container-fluid login-wrapper d-flex justify-content-center py-3 align-items-sm-center">
-      <div className="login-container bg-white ">
-        <div className="login-content row">
-          <div className="col-12 text-login">Login</div>
-          <div className="col-12 form-group login-input">
-            <label>Phone/Email</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Enter your Phone or Email"
-              value={username}
-              onChange={(e) => handlerUseNameChange(e)}
-            />
-          </div>
-          <div className="col-12 form-group login-input">
-            <label>Password</label>
-            <div className="custom-password">
-              <input
-                type={showPassword ? "text" : "password"}
-                className="form-control"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => handlerPasswordChange(e)}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    handlerLogin();
-                  }
-                }}
-              />
-              <FontAwesomeIcon
-                icon={
-                  showPassword ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"
-                }
-                className="eye-icon"
-                onClick={handlerShowPassword}
-              />
-            </div>
-          </div>
-          <div className="col-12" style={{ fontSize: 13, color: "red" }}>
-            <strong>{errorMessenger}</strong>
-          </div>
+    <ThemeProvider theme={defaultTheme}>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+            <LockOutlinedIcon />
+          </Avatar>
 
-          <div className="col-12">
-            <button
-              type="button"
-              className="btn-login text-light"
-              onClick={handlerLogin}
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            noValidate
+            sx={{ mt: 1 }}
+          >
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+              onChange={(e) => {
+                onChangeText(e.target.value, "userName");
+              }}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              onChange={(e) => {
+                onChangeText(e.target.value, "password");
+              }}
+            />
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
             >
               Login
-            </button>
-          </div>
-          <div className="col-12">
-            <button className="forgot-password">Forgot your password?</button>
-          </div>
-          <hr />
-          <div className="col-12 text-center">
-            <span>Or Register:</span>
-          </div>
-          <div className="col-12 d-flex justify-content-around social-icon">
-            {/* <button type="button" className="google">
-              <FontAwesomeIcon
-                icon="fa-brands fa-google-plus-g"
-                fontSize={23}
-                color="white"
-              />
-            </button>
-            <button type="button" className="facebook">
-              <FontAwesomeIcon
-                icon="fa-brands fa-facebook-f"
-                fontSize={23}
-                color="white"
-              />
-            </button>
-            <button type="button" className="twitter">
-              <FontAwesomeIcon
-                icon="fa-brands fa-twitter"
-                style={{
-                  fontSize: 23,
-                  color: "white",
-                }}
-              />
-            </button> */}
-            <button
-              type="button"
-              className="register text-light"
-              onClick={handleRegister}
-            >
-              Create New Account
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Button>
+            <Grid container>
+              <Grid item xs>
+                <Link href="#" variant="body2">
+                  Forgot password?
+                </Link>
+              </Grid>
+              <Grid item>
+                <Link href="/register" variant="body2">
+                  {"Don't have an account? Sign Up"}
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
-}
+};
 export default Login;

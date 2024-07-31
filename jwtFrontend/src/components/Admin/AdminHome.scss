@@ -1,6 +1,6 @@
 .admin-container {
   .menu {
-    height: 100vh;
+    min-height: 100vh;
   }
   .collapsed-button {
     font-size: 16px;
@@ -14,11 +14,22 @@
     font-weight: 600;
     margin-right: 5px;
     .btn-logOut {
-      width: 64px;
-      height: 64px;
+      margin-top: 15px;
       margin-left: 10px;
-      &:hover {
-        background-color: #b2ddff;
+      margin-right: 85px;
+
+      &.dark-theme {
+        background-color: #0f1114;
+        color: white;
+        border-color: white;
+        &:hover {
+          color: #0068d1;
+          border-color: #0068d1;
+        }
+      }
+
+      &.light-theme {
+        background-color: #fff;
       }
     }
   }

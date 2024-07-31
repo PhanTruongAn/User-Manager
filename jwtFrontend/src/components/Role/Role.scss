@@ -1,0 +1,30 @@
+.role-container {
+  .title {
+    font-size: 26px;
+    font-weight: 600;
+  }
+  .role-father {
+    margin: 0 auto;
+    width: fit-content;
+
+    .select-role {
+      margin-top: 15px;
+      .input {
+        align-self: center;
+        width: 300px;
+      }
+    }
+  }
+  .btn-save {
+    margin-top: 15px;
+    margin-left: 19%;
+  }
+  .table-container {
+    margin-top: -50px;
+    .btn-reload {
+      position: absolute;
+      right: 55px;
+      margin-top: -30px;
+    }
+  }
+}

@@ -36,8 +36,8 @@ const ModalCreateUser = React.memo((props) => {
   const onSubmit = async () => {
     const res = await userApi.createUser(data);
     if (res && res.EC === 0) {
-      toast.success("Create new user success!", { autoClose: 1000 });
-      await props.fetchApi();
+      message.success("Create new user success!");
+      props.fetchApi();
       props.onSubmit();
     } else if (res.EC === -1) {
       toast.error(res.EM, { autoClose: 1000 });

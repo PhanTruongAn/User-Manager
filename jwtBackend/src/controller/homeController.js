@@ -47,17 +47,24 @@ const handlerLoginUser = async (req, res) => {
     console.log(error);
   }
 };
-const handlerGetDataFromToken = async (req, res) => {
-  try {
+const handlerGetDataFromToken = (req, res) => {
+  if (req.user) {
     const user = {
-      ..._.pick(req.user, ["email", "username", "phone", "group"]),
+      ..._.pick(req.user, ["email", "username", "phone", "groupWithRoles"]),
     };
     return res.status(200).json({
       EC: 0,
-      DT: user,
+      DT: {
+        user: user,
+        token: req.token,
+      },
     });
-  } catch (error) {
-    console.log(error);
+  } else {
+    return {
+      EC: 1,
+      DT: null,
+      EM: "Unauthorized!",
+    };
   }
 };
 const handlerCreateUser = async (req, res) => {
@@ -66,6 +73,22 @@ const handlerCreateUser = async (req, res) => {
     return res.status(200).json(data);
   } catch (error) {
     console.log(error);
+  }
+};
+
+const handlerLogOut = (req, res) => {
+  try {
+    res.clearCookie("jwt");
+    return res.status(200).json({
+      EC: 0,
+      message: "Log out success!",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EC: 1,
+      EM: "Error from server!",
+    });
   }
 };
 module.exports = {
@@ -77,4 +100,5 @@ module.exports = {
   handlerUpdateUser,
   handlerLoginUser,
   handlerGetDataFromToken,
+  handlerLogOut,
 };
