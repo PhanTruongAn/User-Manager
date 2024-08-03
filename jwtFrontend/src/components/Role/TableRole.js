@@ -4,8 +4,10 @@ import { ReloadOutlined } from "@ant-design/icons";
 import roleApi from "../../api/roleApi";
 import { toast } from "react-toastify";
 import ModalUpdateRole from "./ModalUpdateRole";
+import { useNavigate } from "react-router-dom";
 /* eslint-disable */
 const TableRole = (props) => {
+  const navigate = useNavigate();
   const [dataSource, setDataSource] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,8 +34,13 @@ const TableRole = (props) => {
         setLoadingData(false);
         setSpinIcon(false);
       }, 2000);
+    } else if (
+      res.EM === "Token invalid or expired!" ||
+      res.EM === "Unauthorized!"
+    ) {
+      navigate("/login");
     } else {
-      toast.error("Get all role fail!", { autoClose: 1000 });
+      toast.error(res.EM, { autoClose: 1000 });
       setTimeout(() => {
         setLoadingData(false);
         setSpinIcon(false);

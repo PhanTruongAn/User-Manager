@@ -60,9 +60,23 @@ const handlerDelete = async (req, res) => {
     });
   }
 };
+const handlerAssignRoleToGroup = async (req, res) => {
+  try {
+    const data = await roleService.assignRoleToGroup(req.body);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EC: 1,
+      EM: "Error from server",
+      DT: null,
+    });
+  }
+};
 module.exports = {
   handlerGetAll,
   handlerCreate,
   handlerUpdate,
   handlerDelete,
+  handlerAssignRoleToGroup,
 };

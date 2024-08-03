@@ -46,11 +46,11 @@ const checkUserPermission = (req, res, next) => {
   if (req.user) {
     const roles = req.user.groupWithRoles.Roles;
     const currentUrl = req.path;
-
+    const userAdmin = req.user.groupWithRoles.name;
     const canAccess = roles.some(
       (item) => item.url === currentUrl || currentUrl.includes(item.url)
     );
-    if (canAccess === true) {
+    if (canAccess === true || userAdmin === "ADMIN") {
       next();
     } else {
       return res.status(403).json({

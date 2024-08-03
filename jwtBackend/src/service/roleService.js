@@ -3,6 +3,7 @@ import db from "../models";
 import _ from "lodash";
 import { Op, where } from "sequelize";
 const Role = db.Role;
+const Group_Role = db.Group_Role;
 // Create roles
 const createRole = async (roles) => {
   try {
@@ -123,10 +124,30 @@ const updateRole = async (data) => {
     };
   }
 };
+const assignRoleToGroup = async (data) => {
+  await Group_Role.destroy({
+    where: {
+      groupId: data.groupId,
+    },
+  });
+  const res = await Group_Role.bulkCreate(data.groupRoles);
+  if (res) {
+    return {
+      EC: 0,
+      message: "Assign roles to group successfully",
+    };
+  } else {
+    return {
+      EC: 1,
+      EM: "Assign roles to group fail!",
+    };
+  }
+};
 module.exports = {
   createRole,
   getAllRole,
   deleteRole,
   updateRole,
   getPaginationRoles,
+  assignRoleToGroup,
 };

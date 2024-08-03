@@ -49,7 +49,41 @@ const getAllGroup = async () => {
     };
   }
 };
+
+const rolesByGroup = async (groupId) => {
+  try {
+    const group = await Group.findOne({
+      where: { id: groupId },
+      attributes: ["id", "name", "description"],
+      include: {
+        model: Role,
+        attributes: ["id", "url", "description"],
+        through: { attributes: [] },
+      },
+    });
+    if (group) {
+      return {
+        EC: 0,
+        DT: group,
+      };
+    } else {
+      return {
+        EC: 1,
+        DT: null,
+        EM: "Get roles fail!",
+      };
+    }
+  } catch (error) {
+    console.error(error);
+    return {
+      EC: 1,
+      DT: null,
+      EM: "Error from server!",
+    };
+  }
+};
 module.exports = {
   getAllGroup,
   getRoleWithGroupId,
+  rolesByGroup,
 };

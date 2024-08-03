@@ -7,6 +7,7 @@ import UserHome from "../components/User/UserHome";
 import Role from "../components/Role/Role";
 import Project from "../components/Project/Project";
 import Message from "../components/Message/Message";
+import GroupRole from "../components/Role/GroupRole";
 import { path } from "../utils/constant";
 // import ErrorPage from "./ErrorPage";
 import PrivateRoute from "./PrivateRoute";
@@ -26,6 +27,10 @@ const AppRoute = () => {
             element={<PrivateRoute component={<UserManager />} />}
           />
           <Route path="roles" element={<PrivateRoute component={<Role />} />} />
+          <Route
+            path="group-roles"
+            element={<PrivateRoute component={<GroupRole />} />}
+          />
           <Route
             path="messages"
             element={<PrivateRoute component={<Message />} />}

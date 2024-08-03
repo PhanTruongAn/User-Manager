@@ -27,12 +27,18 @@ const initWebRoutes = (app) => {
 
   //Group Routes
   router.get("/group/get-all-group", groupController.handlerGetAllGroup);
+  router.get(
+    "/group/roles-by-group-id/:id",
+    groupController.handlerRolesByGroup
+  );
 
   //Role Routes
   router.get("/role/get-all", roleController.handlerGetAll);
   router.delete("/role/delete", roleController.handlerDelete);
   router.put("/role/update", roleController.handlerUpdate);
   router.post("/role/create", roleController.handlerCreate);
+  router.post("/role/assign-to-group", roleController.handlerAssignRoleToGroup);
+
   return app.use("/", router);
 };
 export default initWebRoutes;

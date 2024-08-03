@@ -2,12 +2,13 @@ import {
   SettingOutlined,
   UserOutlined,
   UsergroupAddOutlined,
-  // MenuOutlined,
+  MenuOutlined,
   LogoutOutlined,
   HomeOutlined,
   ProjectOutlined,
   MessageOutlined,
   ControlOutlined,
+  ClusterOutlined,
 } from "@ant-design/icons";
 
 const items = [
@@ -27,9 +28,21 @@ const items = [
     label: "Project",
   },
   {
-    key: "roles",
-    icon: <ControlOutlined />,
+    key: "role-menu",
+    icon: <MenuOutlined />,
     label: "Role",
+    children: [
+      {
+        key: "roles",
+        icon: <ControlOutlined />,
+        label: "View Roles",
+      },
+      {
+        key: "group-roles",
+        icon: <ClusterOutlined />,
+        label: "Group Roles",
+      },
+    ],
   },
   {
     key: "messages",
@@ -37,7 +50,7 @@ const items = [
     label: "Message",
   },
   {
-    key: "sub",
+    key: "sub1",
     icon: <SettingOutlined />,
     label: "Setting",
     children: [
